@@ -65,4 +65,77 @@ def user_input_features():
     # Payment Method
     payment = st.selectbox("Payment Method", [
         "Credit card (automatic)",
-        "Elec
+        "Electronic check",
+        "Mailed check"
+    ])
+
+    Payment_Credit_auto = 1 if payment == "Credit card (automatic)" else 0
+    Payment_Electronic_check = 1 if payment == "Electronic check" else 0
+    Payment_Mailed_check = 1 if payment == "Mailed check" else 0
+
+    # BUILD THE FINAL DICTIONARY EXACTLY MATCHING TRAINING COLUMNS
+    data = {
+        'SeniorCitizen': SeniorCitizen,
+        'tenure': tenure,
+        'MonthlyCharges': MonthlyCharges,
+        'TotalCharges': TotalCharges,
+        'Churn_Yes': 0,   # always 0 for new input
+
+        'Female': Female,
+        'Partner_Yes': Partner_Yes,
+        'Dependents_Yes': Dependents_Yes,
+        'PhoneService_Yes': PhoneService_Yes,
+
+        'MultipleLines_No phone service': MultipleLines_No_phone_service,
+        'MultipleLines_Yes': MultipleLines_Yes,
+
+        'InternetService_Fiber optic': InternetService_Fiber_optic,
+        'InternetService_No': InternetService_No,
+
+        'OnlineSecurity_No internet service': OnlineSecurity_No_int,
+        'OnlineSecurity_Yes': OnlineSecurity_Yes,
+
+        'OnlineBackup_No internet service': OnlineBackup_No_int,
+        'OnlineBackup_Yes': OnlineBackup_Yes,
+
+        'DeviceProtection_No internet service': DeviceProtection_No_int,
+        'DeviceProtection_Yes': DeviceProtection_Yes,
+
+        'TechSupport_No internet service': TechSupport_No_int,
+        'TechSupport_Yes': TechSupport_Yes,
+
+        'StreamingTV_No internet service': StreamingTV_No_int,
+        'StreamingTV_Yes': StreamingTV_Yes,
+
+        'StreamingMovies_No internet service': StreamingMovies_No_int,
+        'StreamingMovies_Yes': StreamingMovies_Yes,
+
+        'Contract_One year': Contract_One_year,
+        'Contract_Two year': Contract_Two_year,
+
+        'PaperlessBilling_Yes': PaperlessBilling_Yes,
+
+        'PaymentMethod_Credit card (automatic)': Payment_Credit_auto,
+        'PaymentMethod_Electronic check': Payment_Electronic_check,
+        'PaymentMethod_Mailed check': Payment_Mailed_check
+    }
+
+    return pd.DataFrame([data])
+
+input_df = user_input_features()
+
+# Scale input
+scaled_input = scaler.transform(input_df)
+
+# Predict
+prediction = model.predict(scaled_input)[0]
+prob = model.predict_proba(scaled_input)[0][1]
+
+st.subheader("🔍 Prediction:")
+if prediction == 1:
+    st.error("❌ The customer is likely to CHURN")
+else:
+    st.success("✅ The customer is NOT likely to churn")
+
+st.subheader("📈 Churn Probability:")
+st.write(f"**{prob:.2f}**")
