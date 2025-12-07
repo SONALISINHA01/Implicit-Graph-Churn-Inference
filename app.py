@@ -19,9 +19,9 @@ def user_input_features():
     TotalCharges = st.number_input("Total Charges", 0.0, 10000.0, 500.0)
 
     # Gender
-    Female = st.selectbox("Gender (Female=1, Male=0)", [0, 1])
+    Female = st.selectbox("Gender (1=Female, 0=Male)", [0, 1])
 
-    # Simple yes/no inputs
+    # Simple Yes/No Inputs
     Partner_Yes = st.selectbox("Partner Yes", [0, 1])
     Dependents_Yes = st.selectbox("Dependents Yes", [0, 1])
     PhoneService_Yes = st.selectbox("Phone Service Yes", [0, 1])
@@ -36,15 +36,12 @@ def user_input_features():
     InternetService_Fiber_optic = 1 if internet_option == "Fiber optic" else 0
     InternetService_No = 1 if internet_option == "No" else 0
 
-    # ONLINE SECURITY, BACKUP, DEVICE PROTECTION, TECH SUPPORT, STREAMING
-    # Each one has three possible values:
-    # "Yes" / "No" / "No internet service"
-
+    # Helper for services with 3 options
     def three_option_input(label):
         opt = st.selectbox(label, ["Yes", "No", "No internet service"])
         return (
-            1 if opt == "No internet service" else 0,  # _No internet service
-            1 if opt == "Yes" else 0                   # _Yes
+            1 if opt == "No internet service" else 0,  # "_No internet service"
+            1 if opt == "Yes" else 0                    # "_Yes"
         )
 
     OnlineSecurity_No_int, OnlineSecurity_Yes = three_option_input("Online Security")
@@ -59,27 +56,26 @@ def user_input_features():
     Contract_One_year = 1 if contract == "One year" else 0
     Contract_Two_year = 1 if contract == "Two year" else 0
 
-    # Paperless Billing
+    # PAPERLESS BILLING
     PaperlessBilling_Yes = st.selectbox("Paperless Billing Yes", [0, 1])
 
-    # Payment Method
-    payment = st.selectbox("Payment Method", [
-        "Credit card (automatic)",
-        "Electronic check",
-        "Mailed check"
-    ])
+    # PAYMENT METHOD
+    payment = st.selectbox(
+        "Payment Method",
+        ["Credit card (automatic)", "Electronic check", "Mailed check"]
+    )
 
-    Payment_Credit_auto = 1 if payment == "Credit card (automatic)" else 0
-    Payment_Electronic_check = 1 if payment == "Electronic check" else 0
-    Payment_Mailed_check = 1 if payment == "Mailed check" else 0
+    PaymentMethod_Credit_auto = 1 if payment == "Credit card (automatic)" else 0
+    PaymentMethod_Electronic_check = 1 if payment == "Electronic check" else 0
+    PaymentMethod_Mailed_check = 1 if payment == "Mailed check" else 0
 
-    # BUILD THE FINAL DICTIONARY EXACTLY MATCHING TRAINING COLUMNS
+    # BUILD FINAL INPUT EXACTLY MATCHING TRAINING COLUMNS
     data = {
         'SeniorCitizen': SeniorCitizen,
         'tenure': tenure,
         'MonthlyCharges': MonthlyCharges,
         'TotalCharges': TotalCharges,
-        'Churn_Yes': 0,   # always 0 for new input
+        'Churn_Yes': 0,  # Always zero for new predictions
 
         'Female': Female,
         'Partner_Yes': Partner_Yes,
@@ -115,17 +111,19 @@ def user_input_features():
 
         'PaperlessBilling_Yes': PaperlessBilling_Yes,
 
-        'PaymentMethod_Credit card (automatic)': Payment_Credit_auto,
-        'PaymentMethod_Electronic check': Payment_Electronic_check,
-        'PaymentMethod_Mailed check': Payment_Mailed_check
+        'PaymentMethod_Credit card (automatic)': PaymentMethod_Credit_auto,
+        'PaymentMethod_Electronic check': PaymentMethod_Electronic_check,
+        'PaymentMethod_Mailed check': PaymentMethod_Mailed_check
     }
 
     return pd.DataFrame([data])
 
+
+# Get user input
 input_df = user_input_features()
 
-# Scale input
-scaled_input = scaler.transform(input_df)
+# CRITICAL FIX → use .values to avoid feature-name errors
+scaled_input = scaler.transform(input_df.values)
 
 # Predict
 prediction = model.predict(scaled_input)[0]
